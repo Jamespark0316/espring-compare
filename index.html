@@ -529,14 +529,43 @@ function showToast(msg) {
 function openModal() { document.getElementById('modal').classList.add('active'); document.body.style.overflow='hidden'; }
 function closeModal() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow=''; }
 function closeModalOutside(e) { if (e.target===document.getElementById('modal')) closeModal(); }
-function submitForm() {
-  const name = document.getElementById('f-name').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
-  if (!name || !phone) { alert('이름과 연락처는 필수입니다.'); return; }
-  document.getElementById('form-area').style.display='none';
-  document.getElementById('form-success').style.display='block';
+async function submitForm() {
+  const name    = document.getElementById('f-name').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const current = document.getElementById('f-current').value.trim();
+  const msg     = document.getElementById('f-msg').value.trim();
+  if (!name || !phone) { alert('이름과 연락처는 필수입니다.'); return;  }
+
+  const btn = document.querySelector('.form-submit');
+  btn.textContent = '전송 중...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xbdeyzjp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        이름: name,
+        연락처: phone,
+        현재정수기: current || '미입력',
+        문의내용: msg || '미입력'
+      })
+    });
+    if (res.ok) {
+      document.getElementById('form-area').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    } else {
+      alert('전송 중 오류가 발생했습니다. 카카오톡으로 직접 문의해주세요.');
+      btn.textContent = '상담 신청하기';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('네트워크 오류입니다. 카카오톡으로 직접 문의해주세요.');
+    btn.textContent = '상담 신청하기';
+    btn.disabled = false;
+  }
 }
-function openKakao() { window.open('https://open.kakao.com/o/YOURLINK','_blank'); }
+function openKakao() { window.open('https://open.kakao.com/o/gNj5pQyi','_blank'); }
 
 function buildShareUrl(query) {
   return window.location.origin + window.location.pathname + '?q=' + encodeURIComponent(query);
