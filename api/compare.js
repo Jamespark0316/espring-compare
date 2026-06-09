@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   "price": {
     "espring": {
       "total": "1,528,000원 (퍼싯) / 1,488,000원 (전환기)",
-      "installment": "스마트페이 1,591,000원 · 월 약 44,194원 × 36개월"
+      "installment": "스마트페이 1,591,000원 · 월 약 44,194원 × 36개월"(암웨이-현대카드 사용) 
     },
     "other": {
       "total": "공개 구매가 또는 구매가 미공개",
@@ -67,7 +67,7 @@ URL이 입력된 경우 해당 제품 페이지 정보를 최대한 반영하세
         'anthropic-beta': 'web-search-2025-03-05'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-opus-4-5',
         max_tokens: 1500,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }]
