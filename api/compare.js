@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,8 +8,7 @@ export default async function handler(req, res) {
   const { query } = req.body;
   if (!query) return res.status(400).json({ error: 'query is required' });
 
-  const prompt = `
-당신은 정수기 전문 비교 분석가입니다. 한국 소비자를 위해 정수기를 공인 인증 기준으로 비교합니다.
+  const prompt = `당신은 정수기 전문 비교 분석가입니다. 한국 소비자를 위해 정수기를 공인 인증 기준으로 비교합니다.
 
 비교 대상: "${query}"
 (모델명이면 해당 모델, URL이면 해당 페이지의 제품)
@@ -36,7 +34,7 @@ export default async function handler(req, res) {
   "price": {
     "espring": {
       "total": "1,528,000원 (퍼싯) / 1,488,000원 (전환기)",
-      "installment": "스마트페이 1,591,000원 · 월 약 44,194원 × 36개월"(암웨이-현대카드 사용) 
+      "installment": "스마트페이 1,591,000원 · 월 약 44,194원 × 36개월"
     },
     "other": {
       "total": "공개 구매가 또는 구매가 미공개",
@@ -54,8 +52,7 @@ export default async function handler(req, res) {
 
 이스프링(New eSpring) 데이터는 위 형식 그대로 고정 사용하세요.
 비교 제품은 실제 공개 정보 기준으로만 작성하고, 확인 안 되면 반드시 status q로 표기하세요.
-URL이 입력된 경우 해당 제품 페이지 정보를 최대한 반영하세요.
-`;
+URL이 입력된 경우 해당 제품 페이지 정보를 최대한 반영하세요.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -63,13 +60,11 @@ URL이 입력된 경우 해당 제품 페이지 정보를 최대한 반영하세
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'web-search-2025-03-05'
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-5',
+        model: 'claude-haiku-4-5',
         max_tokens: 1500,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -77,25 +72,26 @@ URL이 입력된 경우 해당 제품 페이지 정보를 최대한 반영하세
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Anthropic API error:', data);
+      console.error('Anthropic API error:', JSON.stringify(data));
       return res.status(500).json({ error: 'API 호출 실패', detail: data });
     }
 
-    // 텍스트 블록 추출
     let raw = '';
     for (const block of data.content || []) {
       if (block.type === 'text') raw += block.text;
     }
 
-    // JSON 파싱
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return res.status(500).json({ error: 'JSON 파싱 실패', raw });
+    if (!jsonMatch) {
+      console.error('JSON 파싱 실패. raw:', raw);
+      return res.status(500).json({ error: 'JSON 파싱 실패' });
+    }
 
     const result = JSON.parse(jsonMatch[0]);
     return res.status(200).json(result);
 
   } catch (err) {
-    console.error('Handler error:', err);
+    console.error('Handler error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 }
