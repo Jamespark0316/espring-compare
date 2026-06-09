@@ -126,6 +126,18 @@
   .tco-section{background:rgba(10,22,40,0.6);}
   .tco-intro{margin-bottom:40px;padding:20px 24px;background:rgba(0,229,255,0.05);border-left:3px solid var(--accent);font-size:0.88rem;color:rgba(248,250,255,0.7);line-height:1.8;}
   .tco-intro strong{color:var(--accent);}
+  .tco-input-wrap{margin-bottom:40px;padding:32px;background:rgba(255,255,255,0.03);border:1px solid rgba(79,195,247,0.2);}
+  .tco-input-label{font-size:0.88rem;font-weight:700;color:var(--sky);margin-bottom:20px;letter-spacing:0.05em;}
+  .tco-input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+  .tco-input-group{display:flex;flex-direction:column;gap:8px;}
+  .tco-input-group label{font-size:0.75rem;font-weight:700;color:var(--gray);letter-spacing:0.06em;}
+  .tco-input-group label span{font-weight:400;color:rgba(136,153,170,0.6);}
+  .tco-input-group input,.tco-input-group select{background:rgba(255,255,255,0.06);border:1px solid rgba(79,195,247,0.2);color:var(--white);padding:12px 14px;font-family:'Noto Sans KR',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;}
+  .tco-input-group input:focus,.tco-input-group select:focus{border-color:var(--accent);}
+  .tco-input-group input::placeholder{color:rgba(248,250,255,0.2);}
+  .tco-input-group select option{background:#0d1e36;color:var(--white);}
+  .tco-calc-btn{background:linear-gradient(135deg,var(--blue),var(--accent));color:var(--navy);border:none;cursor:pointer;padding:14px 36px;font-family:'Noto Sans KR',sans-serif;font-size:0.95rem;font-weight:700;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);transition:opacity 0.2s;}
+  .tco-calc-btn:hover{opacity:0.88;}
   .tco-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
   @media(max-width:640px){.tco-grid{grid-template-columns:1fr;}}
   .tco-card{padding:28px 24px;border:1px solid;}
@@ -338,34 +350,74 @@
   <div class="container">
     <div class="fade-up">
       <div class="section-label">10-YEAR TOTAL COST</div>
-      <h2 class="section-title">10년 총소유비용<br>실제로 얼마나 차이날까?</h2>
-      <div class="tco-intro">정수기 비용은 <strong>구매가·렌탈비만이 아닙니다.</strong><br>필터 교체비, 관리비, 렌탈 총액을 합산한 <strong>10년 총소유비용(TCO)</strong>이 실제 부담입니다.<br>렌탈은 초기 비용이 없지만 10년 누적 시 구매보다 <strong>훨씬 높아지는 경우가 많습니다.</strong></div>
+      <h2 class="section-title">10년 총소유비용<br>견적서 기준으로 직접 계산해보세요</h2>
+      <div class="tco-intro">정수기 비용은 <strong>구매가·렌탈비만이 아닙니다.</strong><br>받으신 견적서의 금액을 입력하면 <strong>이스프링과 10년 총비용을 정확히 비교</strong>해드립니다.<br>렌탈은 초기 비용이 없지만 10년 누적 시 구매보다 <strong>훨씬 높아지는 경우가 많습니다.</strong></div>
     </div>
-    <div class="tco-grid fade-up">
+
+    <!-- 견적 입력 UI -->
+    <div class="tco-input-wrap">
+      <div class="tco-input-label">📋 받으신 견적서 정보를 입력하세요</div>
+      <div class="tco-input-grid">
+        <div class="tco-input-group">
+          <label>비교 제품명</label>
+          <input type="text" id="tcoProductName" placeholder="예: 코웨이 CHP-7211N" oninput="calcTco()">
+        </div>
+        <div class="tco-input-group">
+          <label>월 렌탈비 <span>(원)</span></label>
+          <input type="number" id="tcoMonthly" placeholder="예: 38000" oninput="calcTco()">
+        </div>
+        <div class="tco-input-group">
+          <label>약정 기간 <span>(개월)</span></label>
+          <input type="number" id="tcoMonths" placeholder="예: 60" value="60" oninput="calcTco()">
+        </div>
+        <div class="tco-input-group">
+          <label>월 렌탈 외 필터비 <span>(원/월, 없으면 0)</span></label>
+          <input type="number" id="tcoFilter" placeholder="0" value="0" oninput="calcTco()">
+        </div>
+        <div class="tco-input-group">
+          <label>초기 설치비 <span>(원, 없으면 0)</span></label>
+          <input type="number" id="tcoInstall" placeholder="0" value="0" oninput="calcTco()">
+        </div>
+        <div class="tco-input-group">
+          <label>이스프링 모델</label>
+          <select id="tcoEspringModel" onchange="calcTco()">
+            <option value="1591000">퍼싯 스마트페이 (1,591,000원)</option>
+            <option value="1528000">퍼싯 일시불 (1,528,000원)</option>
+            <option value="1551000">전환기 스마트페이 (1,551,000원)</option>
+            <option value="1488000">전환기 일시불 (1,488,000원)</option>
+          </select>
+        </div>
+      </div>
+      <button class="tco-calc-btn" onclick="calcTco()">💰 10년 비용 계산하기</button>
+    </div>
+
+    <!-- 결과 카드 -->
+    <div class="tco-grid" id="tcoResultGrid">
       <div class="tco-card es">
-        <div class="tco-card-label">✦ NEW ESPRING (퍼싯 기준 · 구매)</div>
-        <h4>이스프링 10년 비용</h4>
-        <div class="tco-row"><span class="tco-row-label">구매가 (스마트페이)</span><span class="tco-row-value">1,591,000원</span></div>
-        <div class="tco-row"><span class="tco-row-label">필터 교체 (연 1회 × 10년)</span><span class="tco-row-value">약 900,000원</span></div>
+        <div class="tco-card-label">✦ NEW ESPRING (구매)</div>
+        <h4 id="tcoEspringTitle">이스프링 10년 비용</h4>
+        <div class="tco-row"><span class="tco-row-label">구매가</span><span class="tco-row-value" id="tcoEspringPrice">1,591,000원</span></div>
+        <div class="tco-row"><span class="tco-row-label">필터 교체 (연 1회 × 10년)</span><span class="tco-row-value">900,000원</span></div>
         <div class="tco-row"><span class="tco-row-label">UV 램프 교체</span><span class="tco-row-value" style="color:var(--green)">0원 (LED 방식)</span></div>
         <div class="tco-row"><span class="tco-row-label">렌탈·관리 수수료</span><span class="tco-row-value" style="color:var(--green)">0원</span></div>
-        <div class="tco-total"><span class="tco-total-label">10년 총비용</span><span class="tco-total-value">약 2,491,000원</span></div>
+        <div class="tco-total"><span class="tco-total-label">10년 총비용</span><span class="tco-total-value" id="tcoEspringTotal">약 2,491,000원</span></div>
       </div>
-      <div class="tco-card lg" id="tcoOtherCard">
-        <div class="tco-card-label" id="tcoOtherLabel">비교 — 일반 렌탈 정수기 (시장 평균 기준)</div>
-        <h4 id="tcoOtherTitle">렌탈 정수기 10년 비용</h4>
-        <div class="tco-row"><span class="tco-row-label">초기 설치비</span><span class="tco-row-value">0~50,000원</span></div>
-        <div class="tco-row"><span class="tco-row-label" id="tcoRentalLabel">렌탈비 (월 38,000원 × 120개월)</span><span class="tco-row-value" id="tcoRentalValue">4,560,000원</span></div>
-        <div class="tco-row"><span class="tco-row-label">필터·관리비</span><span class="tco-row-value">렌탈비에 포함</span></div>
+      <div class="tco-card lg">
+        <div class="tco-card-label" id="tcoOtherLabel">비교 제품 (위에 견적 입력)</div>
+        <h4 id="tcoOtherTitle">렌탈 10년 비용</h4>
+        <div class="tco-row"><span class="tco-row-label">초기 설치비</span><span class="tco-row-value" id="tcoInstallVal">—</span></div>
+        <div class="tco-row"><span class="tco-row-label" id="tcoRentalLabel">월 렌탈비 × 120개월</span><span class="tco-row-value" id="tcoRentalValue">—</span></div>
+        <div class="tco-row"><span class="tco-row-label">추가 필터비 × 120개월</span><span class="tco-row-value" id="tcoFilterVal">—</span></div>
         <div class="tco-row"><span class="tco-row-label">10년 후 소유권</span><span class="tco-row-value" style="color:var(--red)">없음 (반납)</span></div>
-        <div class="tco-total"><span class="tco-total-label">10년 총비용</span><span class="tco-total-value" id="tcoOtherTotal">약 4,560,000원~</span></div>
+        <div class="tco-total"><span class="tco-total-label">10년 총비용</span><span class="tco-total-value" id="tcoOtherTotal">견적 입력 후 계산</span></div>
       </div>
     </div>
-    <div class="tco-winner fade-up">
+
+    <div class="tco-winner fade-up" id="tcoWinner" style="display:none">
       <div class="tco-winner-icon">💡</div>
-      <div class="tco-winner-text" id="tcoWinnerText"><strong>10년 기준 약 200만원 차이</strong><br>렌탈 정수기는 편의성이 있지만, 10년 누적 시 이스프링 구매 대비 약 2배 비용이 발생할 수 있습니다. 렌탈 종료 후 제품 소유권도 없습니다.</div>
+      <div class="tco-winner-text" id="tcoWinnerText"></div>
     </div>
-    <div class="tco-note fade-up">※ 렌탈 월비용은 브랜드·모델·약정에 따라 상이합니다. 위 수치는 시장 평균 기준 예시이며, 실제 계약 조건을 반드시 확인하세요. 이스프링 필터 교체비는 연간 약 9만원 기준입니다.</div>
+    <div class="tco-note fade-up">※ 이스프링 필터 교체비는 연간 약 9만원 기준입니다. 실제 렌탈 계약 조건은 견적서를 반드시 확인하세요.</div>
   </div>
 </section>
 
@@ -571,6 +623,53 @@ function renderTable(data) {
     <td><div class="price-cell price-other"><div class="price-main">${data.price.other.total}</div><div class="price-divider"></div><div class="price-sub">${data.price.other.rental}</div></div></td>
   </tr>`;
   document.getElementById('tableBody').innerHTML = html;
+}
+
+function calcTco() {
+  const monthly   = parseInt(document.getElementById('tcoMonthly').value) || 0;
+  const months    = parseInt(document.getElementById('tcoMonths').value) || 60;
+  const filter    = parseInt(document.getElementById('tcoFilter').value) || 0;
+  const install   = parseInt(document.getElementById('tcoInstall').value) || 0;
+  const espringPrice = parseInt(document.getElementById('tcoEspringModel').value) || 1591000;
+  const productName  = document.getElementById('tcoProductName').value.trim() || '비교 제품';
+
+  // 이스프링 10년 총비용
+  const espringTotal = espringPrice + 900000; // 필터 9만 × 10년
+
+  // 이스프링 카드 업데이트
+  document.getElementById('tcoEspringPrice').textContent = espringPrice.toLocaleString() + '원';
+  document.getElementById('tcoEspringTotal').textContent = '약 ' + espringTotal.toLocaleString() + '원';
+
+  if (monthly === 0) return; // 렌탈비 미입력 시 중단
+
+  // 비교 제품 10년 총비용 (10년 = 120개월 기준)
+  const rentalTotal  = monthly * 120;
+  const filterTotal  = filter * 120;
+  const otherTotal   = install + rentalTotal + filterTotal;
+  const diff         = otherTotal - espringTotal;
+
+  // 비교 카드 업데이트
+  document.getElementById('tcoOtherLabel').textContent = `비교 — ${productName}`;
+  document.getElementById('tcoOtherTitle').textContent = `${productName} 10년 비용`;
+  document.getElementById('tcoRentalLabel').textContent = `월 ${monthly.toLocaleString()}원 × 120개월`;
+  document.getElementById('tcoRentalValue').textContent = rentalTotal.toLocaleString() + '원';
+  document.getElementById('tcoInstallVal').textContent = install > 0 ? install.toLocaleString() + '원' : '0원';
+  document.getElementById('tcoFilterVal').textContent = filterTotal > 0 ? filterTotal.toLocaleString() + '원' : '0원 (렌탈비 포함)';
+  document.getElementById('tcoOtherTotal').textContent = '약 ' + otherTotal.toLocaleString() + '원';
+
+  // 결과 메시지
+  const winnerEl = document.getElementById('tcoWinner');
+  const winnerText = document.getElementById('tcoWinnerText');
+  winnerEl.style.display = 'flex';
+
+  const diffMan = Math.round(diff / 10000); // 만원 단위 반올림
+  if (diff > 0) {
+    winnerText.innerHTML = `<strong>10년 기준 약 ${diffMan}만원 차이</strong><br>${productName} 렌탈 대비 이스프링 구매가 10년간 약 ${diffMan}만원 절감됩니다. 렌탈 종료 후 제품 소유권도 없습니다.`;
+  } else if (diff < 0) {
+    winnerText.innerHTML = `<strong>이 경우 렌탈이 약 ${Math.abs(diffMan)}만원 저렴합니다</strong><br>단, 인증·안전성 항목과 소유권 여부도 함께 고려하세요.`;
+  } else {
+    winnerText.innerHTML = `<strong>10년 총비용이 동일합니다</strong><br>인증·안전성 항목과 소유권을 비교해서 결정하세요.`;
+  }
 }
 
 function renderTco(data) {
