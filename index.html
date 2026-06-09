@@ -355,7 +355,7 @@
     </div>
 
     <!-- 견적 입력 UI -->
-    <div class="tco-input-wrap fade-up">
+    <div class="tco-input-wrap">
       <div class="tco-input-label">📋 받으신 견적서 정보를 입력하세요</div>
       <div class="tco-input-grid">
         <div class="tco-input-group">
@@ -392,7 +392,7 @@
     </div>
 
     <!-- 결과 카드 -->
-    <div class="tco-grid fade-up" id="tcoResultGrid">
+    <div class="tco-grid" id="tcoResultGrid">
       <div class="tco-card es">
         <div class="tco-card-label">✦ NEW ESPRING (구매)</div>
         <h4 id="tcoEspringTitle">이스프링 10년 비용</h4>
@@ -662,10 +662,11 @@ function calcTco() {
   const winnerText = document.getElementById('tcoWinnerText');
   winnerEl.style.display = 'flex';
 
+  const diffMan = Math.round(diff / 10000); // 만원 단위 반올림
   if (diff > 0) {
-    winnerText.innerHTML = `<strong>10년 기준 약 ${Math.round(diff / 10000) * 10}만원 차이</strong><br>${productName} 렌탈 대비 이스프링 구매가 10년간 약 ${Math.round(diff / 10000) * 10}만원 절감됩니다. 렌탈 종료 후 제품 소유권도 없습니다.`;
+    winnerText.innerHTML = `<strong>10년 기준 약 ${diffMan}만원 차이</strong><br>${productName} 렌탈 대비 이스프링 구매가 10년간 약 ${diffMan}만원 절감됩니다. 렌탈 종료 후 제품 소유권도 없습니다.`;
   } else if (diff < 0) {
-    winnerText.innerHTML = `<strong>이 경우 렌탈이 ${Math.abs(Math.round(diff / 10000)) * 10}만원 저렴합니다</strong><br>단, 인증·안전성 항목과 소유권 여부도 함께 고려하세요.`;
+    winnerText.innerHTML = `<strong>이 경우 렌탈이 약 ${Math.abs(diffMan)}만원 저렴합니다</strong><br>단, 인증·안전성 항목과 소유권 여부도 함께 고려하세요.`;
   } else {
     winnerText.innerHTML = `<strong>10년 총비용이 동일합니다</strong><br>인증·안전성 항목과 소유권을 비교해서 결정하세요.`;
   }
